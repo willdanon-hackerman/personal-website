@@ -1,6 +1,12 @@
 "use client";
 
-import { useState, type CSSProperties, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 
 const FONT_HOMEPAGE = '"Times New Roman", Times, serif';
 const CHOP_URL =
@@ -192,10 +198,25 @@ const PANELS: Record<
 export default function Home() {
   const [openKey, setOpenKey] = useState<PanelKey | null>(null);
   const active = openKey ? PANELS[openKey] : null;
+  const panelRef = useRef<HTMLDivElement>(null);
 
   const toggle = (key: PanelKey) => {
     setOpenKey((current) => (current === key ? null : key));
   };
+
+  useEffect(() => {
+    if (!openKey) return;
+
+    const handleClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (target.closest("[data-panel-trigger]")) return;
+      if (panelRef.current?.contains(target)) return;
+      setOpenKey(null);
+    };
+
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, [openKey]);
 
   return (
     <div
@@ -221,6 +242,7 @@ export default function Home() {
                 <li key={item.key}>
                   <button
                     type="button"
+                    data-panel-trigger
                     aria-expanded={openKey === item.key}
                     onClick={() => toggle(item.key)}
                     className="cursor-pointer border-0 bg-transparent p-0 text-left text-[#1c2d4f] underline"
@@ -241,6 +263,7 @@ export default function Home() {
                 <p>
                   <button
                     type="button"
+                    data-panel-trigger
                     aria-expanded={openKey === "the-minutes"}
                     onClick={() => toggle("the-minutes")}
                     className="cursor-pointer border-0 bg-transparent p-0 text-left text-[#1c2d4f] underline"
@@ -272,6 +295,7 @@ export default function Home() {
       </div>
 
       <div
+        ref={panelRef}
         aria-hidden={!openKey}
         className={`fixed inset-x-0 bottom-0 z-50 border-t transition-transform duration-300 ease-out ${
           openKey ? "translate-y-0" : "pointer-events-none translate-y-full"
@@ -296,7 +320,7 @@ export default function Home() {
               close
             </button>
           </div>
-          <div className="max-h-[60vh] overflow-y-auto py-4 text-sm leading-relaxed">
+          <div className="max-h-[60vh] overflow-y-auto pt-4 pb-28 text-sm leading-relaxed">
             {active?.content}
           </div>
         </div>
