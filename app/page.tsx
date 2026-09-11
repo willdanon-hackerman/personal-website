@@ -285,7 +285,7 @@ export default function Home() {
                 <p>november 22, 2026</p>
                 <p className="mt-2">
                   <a href={CHOP_URL} className="text-[#1c2d4f] underline">
-                    donate to chop
+                    donate to CHOP
                   </a>
                 </p>
               </div>
